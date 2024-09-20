@@ -1,11 +1,14 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import generic
-from django.contrib.auth.mixins import LoginRequiredMixin
 
-from taxi.forms import DriverLicenseUpdateForm, DriverLicenseCreateForm, \
-    CarForm
+from taxi.forms import (
+    DriverLicenseUpdateForm,
+    DriverLicenseCreateForm,
+    CarForm,
+)
 from taxi.models import Driver, Car, Manufacturer
 
 
@@ -62,6 +65,9 @@ class CarListView(LoginRequiredMixin, generic.ListView):
 
 class CarDetailView(LoginRequiredMixin, generic.DetailView):
     model = Car
+
+    def get_queryset(self):
+        return Car.objects.prefetch_related("drivers")
 
 
 class CarCreateView(LoginRequiredMixin, generic.CreateView):
