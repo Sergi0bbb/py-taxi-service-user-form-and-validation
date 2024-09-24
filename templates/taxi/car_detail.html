@@ -20,11 +20,13 @@
     {% endfor %}
   </ul>
   {% if user.is_authenticated %}
-    <form action="{% url 'taxi:assign-or-delete-driver-to-car' pk=car.pk %}" method="post">
+    <form action="" method="post">
       {% csrf_token %}
-      {% if user in car.drivers.all %}
+      {% if driver_exist %}
+        <input type="hidden" name="action" value="exist">
         <button type="submit" class="btn btn-danger">Delete me from this car</button>
       {% else %}
+        <input type="hidden" name="action" value="new">
         <button type="submit" class="btn btn-primary">Assign me to this car</button>
       {% endif %}
     </form>
