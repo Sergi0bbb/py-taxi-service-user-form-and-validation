@@ -69,15 +69,13 @@ class CarDetailView(LoginRequiredMixin, generic.DetailView):
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get("action")
-        pk = kwargs["pk"]
+        car = self.get_object()
         if action == "new":
-            car = get_object_or_404(Car, pk)
             car.drivers.add(request.user)
         elif action == "exist":
-            car = get_object_or_404(Car, pk)
             car.drivers.remove(request.user)
         return HttpResponseRedirect(
-            reverse("taxi:car-detail", kwargs={"pk": str(pk)})
+            reverse("taxi:car-detail", kwargs={"pk": str(car.pk)})
         )
 
     def get_context_data(self, **kwargs):
@@ -117,16 +115,6 @@ class DriverListView(LoginRequiredMixin, generic.ListView):
 class DriverDetailView(LoginRequiredMixin, generic.DetailView):
     model = Driver
     queryset = Driver.objects.all().prefetch_related("cars__manufacturer")
-
-
-class AssignOrDeleteUserToCarView(LoginRequiredMixin, generic.View):
-    def post(self, request, pk):
-        car = get_object_or_404(Car, pk=pk)
-        if car.drivers.filter(username=request.user.username).exists():
-            car.drivers.remove(request.user)
-        else:
-            car.drivers.add(request.user)
-        return redirect("taxi:car-detail", pk=car.pk)
 
 
 class DriverCreateView(LoginRequiredMixin, generic.CreateView):

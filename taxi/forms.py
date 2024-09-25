@@ -23,18 +23,18 @@ def validate_license_number(license_number):
     return license_number
 
 
-class DriverLicenseUpdateForm(forms.ModelForm):
+class LicenseFormMixin(forms.ModelForm):
+    license_number = forms.CharField(
+        max_length=8,
+        required=True,
+        validators=[validate_license_number]
+    )
+
     class Meta:
-        model = Driver
-        fields = (
-            "license_number",
-        )
-
-    def clean_license_number(self):
-        return validate_license_number(self.cleaned_data.get("license_number"))
+        abstract = True
 
 
-class DriverCreateForm(UserCreationForm):
+class DriverCreateForm(LicenseFormMixin, UserCreationForm):
     class Meta:
         model = Driver
         fields = UserCreationForm.Meta.fields + (
@@ -43,8 +43,11 @@ class DriverCreateForm(UserCreationForm):
             "license_number",
         )
 
-    def clean_license_number(self):
-        return validate_license_number(self.cleaned_data.get("license_number"))
+
+class DriverLicenseUpdateForm(LicenseFormMixin, forms.ModelForm):
+    class Meta:
+        model = Driver
+        fields = ("license_number",)
 
 
 class CarForm(forms.ModelForm):
